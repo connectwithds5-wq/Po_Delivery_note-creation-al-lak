@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AL LAK Universal | PO Creator</title>
+<style>
+:root{--navy:#354b86;--navy2:#263966;--bg:#f3f5fa;--line:#d9deea;--text:#202638;--muted:#69738a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(115deg,var(--navy2),var(--navy));color:#fff;padding:22px max(18px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
+header h1{font-size:24px;margin:0 0 3px}header p{margin:0;color:#e3e9ff}
+.wrap{max-width:1180px;margin:22px auto;padding:0 16px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+button,.button{border:0;border-radius:8px;padding:10px 14px;background:var(--navy);color:#fff;font-weight:700;cursor:pointer;font-size:13px}
+button.secondary{background:#fff;color:var(--navy);border:1px solid var(--line)}button.danger{background:#a83242}
+.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:16px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 4px 18px #1e31500b}
+h2{font-size:16px;margin:0 0 14px;color:var(--navy)}h3{font-size:13px;margin:18px 0 8px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted);font-weight:700}
+input,textarea,select{width:100%;border:1px solid #ccd3e2;border-radius:7px;padding:9px 10px;font:inherit;background:#fff;color:var(--text);min-width:0}textarea{resize:vertical;min-height:62px}
+.line-item{border:1px solid var(--line);border-radius:9px;padding:12px;margin-bottom:10px}.line-top{display:grid;grid-template-columns:1fr 90px 110px;gap:8px}.line-bottom{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:8px;align-items:end}.line-total{font-weight:700;padding:9px 0;text-align:right}
+.totals{margin-left:auto;max-width:360px}.totalrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}.totalrow.grand{font-size:17px;font-weight:800;color:var(--navy);border-bottom:0}
+.note{font-size:12px;color:var(--muted)}.history{margin-top:16px}.history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:10px 0}.history-row:last-child{border:0}.history-row strong{display:block}.history-row small{color:var(--muted)}
+.preview{margin-top:16px}.po-sheet{background:#fff;border:1px solid var(--line);padding:26px;overflow:auto}.po-title{font-size:25px;margin:0 0 10px}.po-no{font-size:15px;margin:0 0 18px}.bluebar{background:var(--navy);color:#fff;padding:5px 8px;font-size:11px;font-weight:bold}.address-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}.address{font-size:11px;padding:8px;white-space:pre-line;min-height:82px}
+table{border-collapse:collapse;width:100%;font-size:11px}th{background:var(--navy);color:#fff;text-align:left;padding:7px 6px}td{border:1px solid #202638;padding:7px 6px;vertical-align:top}th:nth-child(n+3),td:nth-child(n+3){text-align:right}.print-only{display:none}.small-table{font-size:11px}.section-text{white-space:pre-line;font-size:11px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.line-top{grid-template-columns:1fr 75px}.line-top .desc{grid-column:1/-1}.line-bottom{grid-template-columns:1fr 1fr}.line-bottom .remove{grid-column:1/-1}.address-grid{grid-template-columns:1fr}}
+@media print{body{background:#fff}.no-print,header,.layout,.history{display:none!important}.wrap{max-width:none;margin:0;padding:0}.preview{margin:0}.po-sheet{border:0;padding:0}.print-only{display:block}.po-title{font-size:23px}.po-no{font-size:14px}.address{min-height:72px}button{display:none!important}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<header><div><h1>AL LAK Universal</h1><p>Purchase Order Creator</p></div><div style="text-align:right;font-size:12px">Free browser-based tool<br>Data stays in this browser</div></header>
+<main class="wrap">
+<div class="toolbar no-print">
+<button id="newBtn">＋ New PO</button><button id="saveBtn">Save PO</button><button id="wordBtn" class="secondary">Download Word</button><button id="pdfBtn" class="secondary">Print / Save PDF</button><button id="jsonBtn" class="secondary">Backup Data</button><label class="button secondary" style="display:inline-flex;align-items:center">Restore Backup<input id="restoreFile" type="file" accept=".json,application/json" hidden></label>
+</div>
+<div class="layout no-print">
+<section class="panel">
+<h2>Purchase Order Details</h2>
+<div class="fields">
+<div class="field"><label>PO Number</label><input id="poNo" value="SO100856"></div>
+<div class="field"><label>PO Date</label><input id="poDate" type="date"></div>
+<div class="field"><label>Currency</label><select id="currency"><option>AED</option><option>OMR</option><option>USD</option><option>INR</option><option>SAR</option></select></div>
+<div class="field"><label>VAT Rate (%)</label><input id="vatRate" type="number" min="0" step="0.01" value="0"></div>
+</div>
+<h3>Vendor / Supplier</h3>
+<div class="fields">
+<div class="field full"><label>Supplier Name</label><input id="vendorName" value="Procure"></div>
+<div class="field"><label>TRN / Tax ID</label><input id="vendorTrn" value="104924051600003"></div>
+<div class="field"><label>Phone</label><input id="vendorPhone" value="04 5465041"></div>
+<div class="field full"><label>Supplier Address</label><textarea id="vendorAddress">SHJ Block B-B34-120</textarea></div>
+</div>
+<h3>Ship To</h3>
+<div class="fields">
+<div class="field full"><label>Company / Contact</label><input id="shipName" value="Al Lak Universal"></div>
+<div class="field full"><label>Address</label><textarea id="shipAddress">Office #2B, 1st Floor, Grand Central Building
+PO Box-210, PC-320, Barka, Sultanate of Oman</textarea></div>
+<div class="field"><label>Phone</label><input id="shipPhone" value="99209897"></div>
+<div class="field"><label>Expected Delivery Date</label><input id="deliveryDate" type="date"></div>
+</div>
+<h3>Items</h3>
+<div id="items"></div>
+<button class="secondary" id="addItem">＋ Add Item</button>
+<h3>Discount & Commercial Terms</h3>
+<div class="fields">
+<div class="field"><label>Order-level discount (<span class="currency-label">AED</span>)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div>
+<div class="field"><label>Payment Terms</label><input id="paymentTerms" value="As per approved quotation"></div>
+<div class="field"><label>Quotation Reference</label><input id="quoteRef" placeholder="Enter quotation reference"></div>
+<div class="field"><label>Warranty</label><input id="warranty" value="As per manufacturer’s warranty"></div>
+<div class="field full"><label>Special Instructions</label><textarea id="instructions">1. Deliver items according to the specifications and quantities stated in this purchase order.
+2. Provide the invoice and applicable warranty documents with the delivered materials.
+3. Any change to specifications, quantities or pricing requires prior written approval from Al Lak Universal.
+4. Please acknowledge receipt of this PO and confirm the expected delivery date.</textarea></div>
+</div>
+</section>
+<aside>
+<section class="panel">
+<h2>Order Summary</h2>
+<div class="totalrow"><span>Items subtotal</span><strong id="subtotal">AED 0.00</strong></div>
+<div class="totalrow"><span>Order discount</span><strong id="discountView">AED 0.00</strong></div>
+<div class="totalrow"><span>Taxable amount</span><strong id="taxable">AED 0.00</strong></div>
+<div class="totalrow"><span>VAT (<span id="vatLabel">0</span>%)</span><strong id="vatTotal">AED 0.00</strong></div>
+<div class="totalrow grand"><span>Total</span><strong id="grandTotal">AED 0.00</strong></div>
+<p class="note">Confirm the correct VAT rate and tax treatment before issuing the PO. This tool does not determine tax eligibility.</p>
+</section>
+<section class="panel history">
+<h2>Saved Purchase Orders</h2>
+<input id="searchHistory" placeholder="Search PO number or supplier">
+<div id="historyList"></div>
+<p class="note">Saved records are stored locally in this browser. Use Backup Data to keep a separate copy.</p>
+</section>
+</aside>
+</div>
+<section class="preview">
+<div class="toolbar no-print"><button id="refreshPreview" class="secondary">Refresh Preview</button></div>
+<div id="preview" class="po-sheet"></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const ids=['poNo','poDate','currency','vatRate','vendorName','vendorTrn','vendorPhone','vendorAddress','shipName','shipAddress','shipPhone','deliveryDate','discount','paymentTerms','quoteRef','warranty','instructions'];
+let items=[], editingKey=null;
+const today=new Date().toISOString().slice(0,10); $('poDate').value=today;
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){return `${$('currency').value} ${(Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;}
+function addItem(data={}){items.push({code:data.code||'',desc:data.desc||'',qty:data.qty??1,price:data.price??0,discount:data.discount??0});renderItems();}
+function renderItems(){ $('items').innerHTML=items.map((x,i)=>`<div class="line-item" data-i="${i}"><div class="line-top"><div class="field"><label>Item # / Model</label><input data-k="code" value="${escapeHtml(x.code)}" placeholder="Item code"></div><div class="field"><label>Qty</label><input data-k="qty" type="number" min="0" step="1" value="${x.qty}"></div><div class="field"><label>Unit Price</label><input data-k="price" type="number" min="0" step="0.01" value="${x.price}"></div><div class="field desc"><label>Description</label><textarea data-k="desc">${escapeHtml(x.desc)}</textarea></div><div class="field"><label>Line Discount</label><input data-k="discount" type="number" min="0" step="0.01" value="${x.discount}"></div><div class="line-total">${money(Math.max(0,Number(x.qty)*Number(x.price)-Number(x.discount)))}</div><button class="danger remove" data-remove="${i}" type="button">Remove</button></div></div>`).join('');}
+$('items').addEventListener('input',e=>{let box=e.target.closest('.line-item');if(!box)return;let i=Number(box.dataset.i),k=e.target.dataset.k;if(k){items[i][k]=['qty','price','discount'].includes(k)?Number(e.target.value):e.target.value;calculate();updateLineTotal(box,i);}});
+$('items').addEventListener('click',e=>{let b=e.target.closest('[data-remove]');if(b){items.splice(Number(b.dataset.remove),1);renderItems();calculate();}});
+function updateLineTotal(box,i){let x=items[i];box.querySelector('.line-total').textContent=money(Math.max(0,Number(x.qty)*Number(x.price)-Number(x.discount)));}
+function calc(){let subtotal=items.reduce((s,x)=>s+Math.max(0,Number(x.qty||0)*Number(x.price||0)-Number(x.discount||0)),0);let disc=Math.max(0,Number($('discount').value)||0);if(disc>subtotal)disc=subtotal;let taxable=subtotal-disc,vat=taxable*Math.max(0,Number($('vatRate').value)||0)/100;return {subtotal,disc,taxable,vat,total:taxable+vat};}
+function calculate(){let c=calc();$('subtotal').textContent=money(c.subtotal);$('discountView').textContent=money(c.disc);$('taxable').textContent=money(c.taxable);$('vatTotal').textContent=money(c.vat);$('grandTotal').textContent=money(c.total);$('vatLabel').textContent=$('vatRate').value||0;document.querySelectorAll('.currency-label').forEach(e=>e.textContent=$('currency').value);renderPreview();}
+function field(id){return $(id).value.trim();}
+function renderPreview(){let c=calc();let itemsHtml=items.map(x=>`<tr><td>${escapeHtml(x.code)}</td><td>${escapeHtml(x.desc).replace(/\n/g,'<br>')}</td><td>${escapeHtml(x.qty)}</td><td>${money(x.price)}</td><td>${money(Math.max(0,Number(x.qty)*Number(x.price)-Number(x.discount)))}</td></tr>`).join('');$('preview').innerHTML=`<h1 class="po-title">AL LAK Universal</h1><p class="po-no">PURCHASE ORDER NO: ${escapeHtml(field('poNo'))}</p><div class="address-grid"><div><div class="bluebar">VENDOR</div><div class="address">${escapeHtml(field('vendorName'))}\nTRN: ${escapeHtml(field('vendorTrn'))}\n${escapeHtml(field('vendorAddress'))}\nPhone: ${escapeHtml(field('vendorPhone'))}</div></div><div><div class="bluebar">SHIP TO</div><div class="address">${escapeHtml(field('shipName'))}\n${escapeHtml(field('shipAddress'))}\nPhone: ${escapeHtml(field('shipPhone'))}\nDate: ${escapeHtml(field('poDate'))}</div></div></div><table><thead><tr><th>ITEM #</th><th>DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>TOTAL</th></tr></thead><tbody>${itemsHtml||'<tr><td colspan="5">No items added</td></tr>'}</tbody></table><div class="totals"><div class="totalrow"><span>Subtotal</span><strong>${money(c.subtotal)}</strong></div><div class="totalrow"><span>Discount</span><strong>${money(c.disc)}</strong></div><div class="totalrow"><span>VAT (${escapeHtml(field('vatRate')||0)}%)</span><strong>${money(c.vat)}</strong></div><div class="totalrow grand"><span>Total incl. VAT</span><strong>${money(c.total)}</strong></div></div><h3>Delivery & Commercial Details</h3><div class="section-text">Expected Delivery Date: ${escapeHtml(field('deliveryDate')||'To be confirmed')}\nPayment Terms: ${escapeHtml(field('paymentTerms'))}\nQuotation Reference: ${escapeHtml(field('quoteRef')||'Not specified')}\nWarranty: ${escapeHtml(field('warranty'))}</div><h3>Special Instructions</h3><div class="section-text">${escapeHtml(field('instructions'))}</div><h3>Authorization & Supplier Acknowledgement</h3><div class="address-grid"><div class="section-text">FOR AL LAK UNIVERSAL\n\nAuthorized Signature: ______________________\nName: _________________________________\nDate: __________________________________</div><div class="section-text">SUPPLIER ACKNOWLEDGEMENT\n\nAuthorized Signature: ______________________\nName: _________________________________\nCompany Stamp: _________________________</div></div>`;}
+function snapshot(){let d={};ids.forEach(id=>d[id]=$(id).value);d.items=items;d.updated=new Date().toISOString();return d;}
+function apply(d){ids.forEach(id=>{if(d[id]!==undefined)$(id).value=d[id]});items=Array.isArray(d.items)?d.items:[];editingKey=d.poNo||null;renderItems();calculate();}
+function records(){try{return JSON.parse(localStorage.getItem('alak_po_records')||'[]')}catch{return []}}
+function save(){if(!field('poNo')||!field('vendorName')){alert('Please enter a PO number and supplier name.');return}if(!items.length){alert('Please add at least one item.');return}let d=snapshot(),all=records(),idx=all.findIndex(x=>x.poNo===d.poNo);if(idx>=0)all[idx]=d;else all.unshift(d);localStorage.setItem('alak_po_records',JSON.stringify(all));editingKey=d.poNo;renderHistory();alert('Purchase order saved in this browser. Please create a backup regularly.');}
+function renderHistory(){let q=($('searchHistory').value||'').toLowerCase();let arr=records().filter(x=>(x.poNo+' '+x.vendorName).toLowerCase().includes(q));$('historyList').innerHTML=arr.map(x=>`<div class="history-row"><div><strong>${escapeHtml(x.poNo)}</strong><small>${escapeHtml(x.vendorName)} · ${escapeHtml(x.poDate||'')}</small></div><div style="display:flex;gap:5px"><button class="secondary" data-load="${escapeHtml(x.poNo)}">Open</button><button class="danger" data-delete="${escapeHtml(x.poNo)}">×</button></div></div>`).join('')||'<p class="note">No saved purchase orders yet.</p>';}
+$('historyList').addEventListener('click',e=>{let l=e.target.closest('[data-load]'),d=e.target.closest('[data-delete]');if(l){let r=records().find(x=>x.poNo===l.dataset.load);if(r)apply(r)}if(d&&confirm('Delete saved PO '+d.dataset.delete+'?')){localStorage.setItem('alak_po_records',JSON.stringify(records().filter(x=>x.poNo!==d.dataset.delete)));renderHistory()}});
+function fresh(){if(!confirm('Start a new PO? Save your current changes first if needed.'))return;let next=Number((field('poNo').match(/(\d+)$/)||[])[1]||100855)+1;$('poNo').value='SO'+String(next);$('poDate').value=today;$('discount').value=0;$('quoteRef').value='';$('deliveryDate').value='';items=[];addItem();calculate();}
+$('addItem').onclick=()=>addItem();$('saveBtn').onclick=save;$('newBtn').onclick=fresh;$('refreshPreview').onclick=renderPreview;$('pdfBtn').onclick=()=>{renderPreview();window.print()};$('searchHistory').oninput=renderHistory;
+ids.forEach(id=>$(id).addEventListener('input',calculate));$('currency').addEventListener('change',()=>{renderItems();calculate()});
+$('wordBtn').onclick=()=>{renderPreview();let html='<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:10pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #222;padding:6px}th,.bluebar{background:#354b86;color:white}.address-grid{display:flex;gap:25px}.address-grid>div{width:50%}.address{white-space:pre-line;padding:8px}.totals{margin-left:auto;width:300px}.totalrow{display:flex;justify-content:space-between;padding:5px;border-bottom:1px solid #ddd}.grand{font-weight:bold}</style></head><body>'+ $('preview').innerHTML+'</body></html>';let blob=new Blob(['\ufeff',html],{type:'application/msword'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(field('poNo')||'purchase-order')+'.doc';a.click();URL.revokeObjectURL(url);};
+$('jsonBtn').onclick=()=>{let blob=new Blob([JSON.stringify(records(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='al-lak-po-backup-'+today+'.json';a.click();URL.revokeObjectURL(url)};
+$('restoreFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d))throw Error();localStorage.setItem('alak_po_records',JSON.stringify(d));renderHistory();alert('Backup restored.')}catch{alert('Could not read this backup file.')}e.target.value=''};
+$('deliveryDate').value='';addItem({code:'OS-WEBCAM-EPTZ',desc:'OneScreen 4K UHD EPTZ Camera & Built-in Mic with 8 meters range - Auto Framing & Lecture Tracking',qty:10,price:399});calculate();renderHistory();
+</script>
+</body>
+</html>
